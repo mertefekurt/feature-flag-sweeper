@@ -1,44 +1,36 @@
 # Feature Flag Sweeper
 
+> A small command-line review pass for feature flags.
+
 ![Feature Flag Sweeper cover](assets/readme-cover.svg)
 
-> Find stale and risky feature flags in config inventories
+Find stale and risky feature flags in config inventories. In practice it is a narrow guardrail for small developer checks: one command, a concrete report, and very little ceremony.
 
-![stack](https://img.shields.io/badge/stack-Python-b45309?style=flat-square) ![python](https://img.shields.io/badge/python-3.11-be185d?style=flat-square) ![license](https://img.shields.io/badge/license-MIT-4b5563?style=flat-square) ![ci](https://img.shields.io/badge/ci-GitHub%20Actions-2563eb?style=flat-square)
+## Signals in plain English
 
-## At a glance
+- `ownerless-flag` (high): feature flag has no owner. Fix: Assign a responsible owner before rollout..
+- `permanent-flag` (medium): flag has no cleanup date. Fix: Add an expiry date or removal ticket..
+- `global-enabled` (low): flag appears globally enabled. Fix: Confirm whether the flag can be removed..
 
-| Area | Detail |
-| --- | --- |
-| Focus | feature flags |
-| Command | `feature-flag-sweeper` |
-| Formats | text, JSON, JSONL, CSV |
-| Output | Markdown table or JSON |
+## Input and report
 
-## What it checks
+The reader accepts text, JSON, JSONL, or CSV. The default report is readable in a terminal or pull request; `--json` keeps the same findings available to automation.
 
-| Rule | Severity | What it catches |
-| --- | --- | --- |
-| `ownerless-flag` | high | feature flag has no owner |
-| `permanent-flag` | medium | flag has no cleanup date |
-| `global-enabled` | low | flag appears globally enabled |
-
-## Try it locally
+## Demo
 
 ```bash
+git clone https://github.com/mertefekurt/feature-flag-sweeper.git
+cd feature-flag-sweeper
+python -m venv .venv
+source .venv/bin/activate
 python -m pip install -e ".[dev]"
 feature-flag-sweeper examples/sample.txt
-feature-flag-sweeper examples/sample.txt --json --fail-on medium
+feature-flag-sweeper examples/sample.txt --json
 ```
 
-## Notes from the code
-
-`rules.py` keeps the project policy explicit, while `core.py` handles parsing and report rendering. The CLI stays thin on purpose so the checks are easy to test.
-
-## Verify
+## Sanity checks
 
 ```bash
-python -m pip install -e ".[dev]"
 ruff check .
 pytest
 python -m feature_flag_sweeper --help
