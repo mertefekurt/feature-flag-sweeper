@@ -1,71 +1,45 @@
-# feature-flag-sweeper
+# Feature Flag Sweeper
 
-`feature-flag-sweeper` is a small local CLI that find stale and risky feature flags in config inventories.
+![Feature Flag Sweeper cover](assets/readme-cover.svg)
 
-## Why it is useful
+> Find stale and risky feature flags in config inventories
 
-Feature flags are easy to add and hard to remove. This CLI highlights flags that need cleanup before they become hidden product logic.
+![stack](https://img.shields.io/badge/stack-Python-b45309?style=flat-square) ![python](https://img.shields.io/badge/python-3.11-be185d?style=flat-square) ![license](https://img.shields.io/badge/license-MIT-4b5563?style=flat-square) ![ci](https://img.shields.io/badge/ci-GitHub%20Actions-2563eb?style=flat-square)
 
-## Key features
+## At a glance
 
-- reads text, JSON, JSONL, or CSV inputs
-- returns Markdown or JSON reports
-- supports severity-based CI exit codes
-- keeps all checks deterministic and offline
-- includes focused rules for this project:
-- `ownerless-flag`: feature flag has no owner
-- `permanent-flag`: flag has no cleanup date
-- `global-enabled`: flag appears globally enabled
+| Area | Detail |
+| --- | --- |
+| Focus | feature flags |
+| Command | `feature-flag-sweeper` |
+| Formats | text, JSON, JSONL, CSV |
+| Output | Markdown table or JSON |
 
-## Installation
+## What it checks
+
+| Rule | Severity | What it catches |
+| --- | --- | --- |
+| `ownerless-flag` | high | feature flag has no owner |
+| `permanent-flag` | medium | flag has no cleanup date |
+| `global-enabled` | low | flag appears globally enabled |
+
+## Try it locally
 
 ```bash
 python -m pip install -e ".[dev]"
-```
-
-## Usage
-
-```bash
 feature-flag-sweeper examples/sample.txt
-feature-flag-sweeper examples/sample.txt --json
-feature-flag-sweeper path/to/input.txt --fail-on medium --out report.md
-python -m feature_flag_sweeper --help
+feature-flag-sweeper examples/sample.txt --json --fail-on medium
 ```
 
-Example input:
+## Notes from the code
 
-```text
-flag old_checkout enabled true created 2023 owner unknown permanent
-```
+`rules.py` keeps the project policy explicit, while `core.py` handles parsing and report rendering. The CLI stays thin on purpose so the checks are easy to test.
 
-## CLI options
-
-```text
-feature-flag-sweeper INPUT [--format auto|text|jsonl|csv|json] [--json]
-             [--fail-on low|medium|high] [--out PATH]
-```
-
-`INPUT` is any feature flag inventory text or CSV export. The tool exits with code `2` when findings meet the selected
-threshold, which makes it easy to use in GitHub Actions or release checks.
-
-## Workflow
-
-```mermaid
-flowchart LR
-    A[input file] --> B[format reader]
-    B --> C[project-specific rules]
-    C --> D[risk score]
-    D --> E[Markdown or JSON report]
-```
-
-## Tests
+## Verify
 
 ```bash
+python -m pip install -e ".[dev]"
 ruff check .
 pytest
 python -m feature_flag_sweeper --help
 ```
-
-## License
-
-MIT
